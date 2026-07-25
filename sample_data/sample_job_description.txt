@@ -1,0 +1,18 @@
+Data Analyst & Python Developer
+
+We are seeking a talented Data Analyst with strong Python programming skills to join our analytics team. 
+
+Key Responsibilities:
+- Build data processing pipelines using Python, Pandas, and NumPy.
+- Write complex SQL queries to extract data from PostgreSQL and MySQL databases.
+- Develop interactive dashboards and visualizations using Power BI and Tableau.
+- Perform exploratory data analysis and statistical modeling using Scikit-learn.
+- Collaborate with engineering teams to deploy REST APIs using FastAPI or Flask.
+- Utilize Git and GitHub for version control and collaborative software development.
+
+Requirements:
+- Bachelor's degree in Computer Science, Data Science, or related technical field.
+- 1+ years of experience with Python, SQL, Pandas, NumPy, and Git.
+- Demonstrated experience with business intelligence tools (Power BI, Tableau).
+- Knowledge of Machine Learning concepts and REST APIs is a strong plus.
+- Excellent problem-solving and communication skills.

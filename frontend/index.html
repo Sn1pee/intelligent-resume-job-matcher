@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Resume & Job Matching System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e1e7fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white pb-16">
+
+    <!-- Background Decor -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 -right-40 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <header class="py-8 border-b border-slate-800/80 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-brain"></i> Student NLP Portfolio Project
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                        Intelligent Resume & <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Job Matching System</span>
+                    </h1>
+                    <p class="text-slate-400 text-sm sm:text-base mt-1">
+                        Analyze how well your resume matches a job description with TF-IDF & Sentence Transformer Embeddings.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="loadSampleBtn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium border border-slate-700 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Load Sample Data
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Input Cards Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Left Card: Resume Upload -->
+            <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                <i class="fa-solid fa-file-pdf text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Resume (PDF)</h2>
+                                <p class="text-slate-400 text-xs">Upload your resume in PDF format</p>
+                            </div>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">Step 1</span>
+                    </div>
+
+                    <!-- Dropzone -->
+                    <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500/60 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/40 hover:bg-indigo-950/20 group relative mb-4">
+                        <input type="file" id="resumeFileInput" accept=".pdf" class="hidden">
+                        <div class="flex flex-col items-center justify-center py-4">
+                            <div class="w-12 h-12 rounded-full bg-slate-800 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 flex items-center justify-center text-slate-400 text-xl transition mb-3">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm">
+                                <span class="text-indigo-400 underline decoration-indigo-500/40 underline-offset-2">Click to upload</span> or drag and drop
+                            </p>
+                            <p class="text-slate-500 text-xs mt-1">PDF files only (Max 10MB)</p>
+                        </div>
+                    </div>
+
+                    <!-- Selected File Banner -->
+                    <div id="fileSelectedBanner" class="hidden p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/30 items-center justify-between">
+                        <div class="flex items-center gap-3 truncate">
+                            <i class="fa-solid fa-file-pdf text-indigo-400 text-xl"></i>
+                            <div class="truncate">
+                                <p id="fileNameDisplay" class="text-slate-200 text-sm font-semibold truncate">resume.pdf</p>
+                                <p id="fileSizeDisplay" class="text-slate-400 text-xs">245 KB</p>
+                            </div>
+                        </div>
+                        <button id="removeFileBtn" class="text-slate-400 hover:text-rose-400 transition p-2">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-800/60 text-xs text-slate-500 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-indigo-400"></i> Text is parsed locally with PyMuPDF.
+                </div>
+            </div>
+
+            <!-- Right Card: Job Description -->
+            <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                                <i class="fa-solid fa-briefcase text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Job Description</h2>
+                                <p class="text-slate-400 text-xs">Paste target job responsibilities & skills</p>
+                            </div>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">Step 2</span>
+                    </div>
+
+                    <div class="relative">
+                        <textarea id="jobDescriptionInput" rows="7" placeholder="Paste the job description here (e.g., Seeking Data Analyst with Python, SQL, Pandas, Power BI...)" class="w-full bg-slate-950/60 border border-slate-700/80 rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"></textarea>
+                        
+                        <div class="flex items-center justify-between text-xs text-slate-500 mt-2 px-1">
+                            <span id="charCountDisplay">0 characters</span>
+                            <span id="wordCountDisplay">0 words</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-800/60 text-xs text-slate-500 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-400"></i> Tip: Include key requirements and skill lists for best matching.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Action Button -->
+        <div class="flex flex-col items-center mb-12">
+            <button id="analyzeBtn" class="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto min-w-[280px]">
+                <span id="btnText" class="flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-bolt text-amber-300"></i> Analyze Match
+                </span>
+                <span id="btnSpinner" class="hidden flex items-center justify-center gap-3">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing Resume...
+                </span>
+            </button>
+            
+            <!-- Error Alert Box -->
+            <div id="errorAlert" class="hidden mt-4 max-w-lg w-full p-4 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-sm text-center">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i> <span id="errorMessage">Error message here</span>
+            </div>
+        </div>
+
+        <!-- RESULTS DASHBOARD SECTION -->
+        <section id="resultsDashboard" class="hidden space-y-8 animate-fadeIn">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Analysis Results Dashboard</h2>
+                    <p id="analysisMetaDisplay" class="text-slate-400 text-xs">Analyzed sample.pdf against job description</p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 text-xs font-mono">
+                    NLP Engine: <span id="methodBadge" class="text-indigo-400">TF-IDF & Embeddings</span>
+                </span>
+            </div>
+
+            <!-- Top Row: Score & Breakdown -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Match Score Card -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Overall Match Score</div>
+                    
+                    <!-- SVG Circular Progress Bar -->
+                    <div class="relative w-44 h-44 flex items-center justify-center mb-4">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <!-- Background Track -->
+                            <circle cx="60" cy="60" r="50" class="stroke-slate-800" stroke-width="10" fill="transparent"></circle>
+                            <!-- Animated Score Ring -->
+                            <circle id="scoreRing" cx="60" cy="60" r="50" class="stroke-indigo-500 transition-all duration-1000 ease-out" stroke-width="10" stroke-dasharray="314.15" stroke-dashoffset="314.15" stroke-linecap="round" fill="transparent"></circle>
+                        </svg>
+                        <div class="absolute flex flex-col items-center">
+                            <span id="scorePercentageDisplay" class="text-4xl font-extrabold text-white">0%</span>
+                            <span id="scoreCategoryBadge" class="mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300">
+                                Calculating...
+                            </span>
+                        </div>
+                    </div>
+
+                    <p id="scoreInterpretationText" class="text-slate-300 text-sm max-w-xs">
+                        Evaluation complete based on skills, semantic overlap, and section structural relevance.
+                    </p>
+                </div>
+
+                <!-- Score Component Breakdown -->
+                <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-2">Scoring Breakdown</h3>
+                        <p class="text-slate-400 text-xs mb-6">Weighted algorithm combining explicit skills, vector semantics, and structural relevance.</p>
+                        
+                        <div class="space-y-4">
+                            <!-- Component 1: Skills -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-300 font-medium"><i class="fa-solid fa-microchip text-indigo-400 mr-2"></i> Skill Match (50% Weight)</span>
+                                    <span id="skillScoreValue" class="font-mono text-indigo-400 font-bold">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                    <div id="skillScoreBar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Component 2: Semantic Similarity -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-300 font-medium"><i class="fa-solid fa-network-wired text-purple-400 mr-2"></i> Semantic Similarity (30% Weight)</span>
+                                    <span id="similarityScoreValue" class="font-mono text-purple-400 font-bold">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                    <div id="similarityScoreBar" class="bg-purple-500 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Component 3: Section Relevance -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-300 font-medium"><i class="fa-solid fa-list-check text-pink-400 mr-2"></i> Relevance & Experience (20% Weight)</span>
+                                    <span id="relevanceScoreValue" class="font-mono text-pink-400 font-bold">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                    <div id="relevanceScoreBar" class="bg-pink-500 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-500 font-mono">
+                        Formula: Overall = (0.50 × Skill) + (0.30 × Similarity) + (0.20 × Relevance)
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Skills Analysis Badges Grid -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-indigo-400"></i> Skills Analysis
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Matching Skills -->
+                    <div class="bg-slate-950/50 border border-emerald-500/20 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-emerald-500/20">
+                            <span class="text-emerald-400 font-bold text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Matching Skills
+                            </span>
+                            <span id="matchingSkillsCount" class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-mono font-bold">0</span>
+                        </div>
+                        <div id="matchingSkillsContainer" class="flex flex-wrap gap-2">
+                            <!-- Badges rendered via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Missing Skills -->
+                    <div class="bg-slate-950/50 border border-rose-500/20 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-rose-500/20">
+                            <span class="text-rose-400 font-bold text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-xmark"></i> Missing Skills
+                            </span>
+                            <span id="missingSkillsCount" class="text-xs px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 font-mono font-bold">0</span>
+                        </div>
+                        <div id="missingSkillsContainer" class="flex flex-wrap gap-2">
+                            <!-- Badges rendered via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Additional Resume Skills -->
+                    <div class="bg-slate-950/50 border border-blue-500/20 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-blue-500/20">
+                            <span class="text-blue-400 font-bold text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-plus"></i> Additional Resume Skills
+                            </span>
+                            <span id="additionalSkillsCount" class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-mono font-bold">0</span>
+                        </div>
+                        <div id="additionalSkillsContainer" class="flex flex-wrap gap-2">
+                            <!-- Badges rendered via JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Insights Grid: Strengths, Improvements, Recommendations -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Strengths Card -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-thumbs-up"></i> Resume Strengths
+                    </h3>
+                    <ul id="strengthsList" class="space-y-3 text-sm text-slate-300">
+                        <!-- Items rendered via JS -->
+                    </ul>
+                </div>
+
+                <!-- Areas for Improvement Card -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-wrench"></i> Areas for Improvement
+                    </h3>
+                    <ul id="improvementsList" class="space-y-3 text-sm text-slate-300">
+                        <!-- Items rendered via JS -->
+                    </ul>
+                </div>
+
+                <!-- Recommended Skills Card -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap"></i> Recommended to Learn
+                    </h3>
+                    <ul id="recommendationsList" class="space-y-3 text-sm text-slate-300">
+                        <!-- Items rendered via JS -->
+                    </ul>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-16 pt-8 border-t border-slate-800/80 text-center text-xs text-slate-500">
+            <p>Intelligent Resume & Job Matching System • Student Portfolio Project</p>
+            <p class="mt-1">Built with FastAPI, PyMuPDF, Sentence Transformers & Modern Web UI</p>
+        </footer>
+
+    </div>
+
+    <!-- App JS Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
